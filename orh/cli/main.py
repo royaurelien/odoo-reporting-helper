@@ -28,7 +28,7 @@ WORKDIR = pathlib.Path().absolute()
 
 @click.group()
 def cli():
-    """Odoo Reporting System"""
+    """Odoo Reporting Help"""
 
 
 @click.command()
@@ -51,6 +51,8 @@ def cli():
     help="Keep JS scripts.",
 )
 def clean(source, destination, **kwargs):
+    """Clean and prepare html sources."""
+
     # limit_memory(4294967296)
     remove_stylesheets = kwargs.get("include_stylesheets", False)
     remove_js = not kwargs.get("include_javascripts", False)
@@ -146,6 +148,8 @@ def clean(source, destination, **kwargs):
     help="Ignore footer if presents.",
 )
 def convert(source, destination, landscape, **kwargs):
+    """Convert an html source file to pdf."""
+
     options = {
         "page-size": kwargs.get("format"),
         "path": WORKDIR,
@@ -163,8 +167,8 @@ def convert(source, destination, landscape, **kwargs):
 @click.command()
 @click.argument("source")
 @click.argument("destination")
-def merge(source, destination, **kwargs):
-    """Merge stylesheets into main HTML file."""
+def merge(source, destination):
+    """Merge stylesheets into a single HTML file."""
 
     with open(source, encoding="utf-8") as file:
         tree = get_tree(file.read())
