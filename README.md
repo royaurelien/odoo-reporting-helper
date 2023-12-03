@@ -5,6 +5,13 @@ _**ORH** Command Line Tool_
 
 ![PyPI](https://img.shields.io/pypi/v/odoo-reporting-helper) ![PyPI](https://img.shields.io/pypi/pyversions/odoo-reporting-helper)
 
+## Requirements
+
+Wkhtmltopdf download page: https://wkhtmltopdf.org/downloads.html
+
+Installation script : https://raw.githubusercontent.com/JazzCore/python-pdfkit/master/ci/before-script.sh
+
+See options : https://wkhtmltopdf.org/usage/wkhtmltopdf.txt
 
 ## Installation
 
