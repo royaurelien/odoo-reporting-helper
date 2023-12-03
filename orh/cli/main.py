@@ -1,29 +1,23 @@
-import sys
 import logging
-import resource
-import re
-import os
-
 import pathlib
-from lxml import etree
+
 import click
 
+from orh.core.converter import Converter
 from orh.core.tools import (
-    remove_html_tags,
-    remove_empty_lines,
-    remove_div,
-    get_tree,
+    add_style,
+    compile_stylesheets,
+    fix_stylesheets,
+    fix_stylesheets_url,
+    get_base_url,
     get_js_scripts,
     get_stylesheets,
-    get_base_url,
+    get_tree,
+    remove_div,
+    remove_empty_lines,
+    remove_html_attrs,
     tree_to_string,
-    compile_stylesheets,
-    add_style,
-    fix_stylesheets_url,
-    download_file,
-    fix_stylesheets,
 )
-from orh.core.converter import Converter
 
 _logger = logging.getLogger(__name__)
 _logger.addHandler(logging.FileHandler("./orh.log"))
@@ -63,14 +57,14 @@ def clean(source, destination, **kwargs):
     # download_stylesheets = False
     local_stylesheets = True
 
-    with open(source, "r", encoding="utf-8") as r, open(
+    with open(source, encoding="utf-8") as r, open(
         destination, "w", encoding="utf-8"
     ) as o:
         for line in r:
             if line.strip():
                 o.write(line)
 
-    with open(destination, "r", encoding="utf-8") as file:
+    with open(destination, encoding="utf-8") as file:
         tree = get_tree(file.read())
 
     base_url, tree = get_base_url(tree)
@@ -105,7 +99,7 @@ def clean(source, destination, **kwargs):
         else:
             fix_stylesheets_url(stylesheets, base_url, WORKDIR)
 
-    tree = remove_html_tags(tree)
+    tree = remove_html_attrs(tree)
     html = tree_to_string(tree)
 
     if to_fix:
@@ -172,7 +166,7 @@ def convert(source, destination, landscape, **kwargs):
 def merge(source, destination, **kwargs):
     """Merge stylesheets into main HTML file."""
 
-    with open(source, "r", encoding="utf-8") as file:
+    with open(source, encoding="utf-8") as file:
         tree = get_tree(file.read())
 
     remove_stylesheets = True
