@@ -1,10 +1,4 @@
-from orh.core.html import (
-    get_base_url,
-    get_tree,
-    get_header,
-    tree_to_string,
-)
-
+from orh.core.html import get_base_url, get_header, get_tree, tree_to_string
 
 source = """
 
@@ -38,21 +32,21 @@ def test_base_url():
     tree = get_tree(source)
     base_url, tree = get_base_url(tree)
 
-    html = """
-<html web-base-url="http://localhost:8069">
-            <head>
-                <meta charset="utf-8"/>
-                <meta name="viewport" content="initial-scale=1"/>
-                <title>Odoo Report</title>
-                </head>
-            <body class="container">
-                <div id="wrapwrap">
-                    <main>
-                    </main>
-                </div>
-            </body>
-        </html>
-"""
+    #     html = """
+    # <html web-base-url="http://localhost:8069">
+    #             <head>
+    #                 <meta charset="utf-8"/>
+    #                 <meta name="viewport" content="initial-scale=1"/>
+    #                 <title>Odoo Report</title>
+    #                 </head>
+    #             <body class="container">
+    #                 <div id="wrapwrap">
+    #                     <main>
+    #                     </main>
+    #                 </div>
+    #             </body>
+    #         </html>
+    # """
 
     assert base_url == "http://localhost:8069"
     # assert tree == get_tree(html)

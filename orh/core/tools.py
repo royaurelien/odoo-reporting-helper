@@ -7,7 +7,7 @@ import requests
 
 _logger = logging.getLogger(__name__)
 
-__all__ = ["limit_memory", "download_file"]
+__all__ = ["set_memory_limit", "download_file"]
 
 DEFAULT_FILENAME = "download"
 DEFAULT_MEMORY_LIMIT = 4294967296
