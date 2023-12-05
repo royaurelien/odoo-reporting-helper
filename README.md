@@ -24,9 +24,18 @@ pip install odoo-reporting-helper
 
 
 ### Clean and prepare HTML
-`path` is the local repository you want to inspect.
 ```bash
 orh clean <source> <destination>
+```
+
+Options:
+
+```
+  -s, --include-stylesheets  Compile and include external stylesheets in HTML
+                             report.
+  -j, --include-javascripts  Keep JS scripts.
+  -c, --cookies TEXT         Cookies
+  -l, --limit-memory         Set memory limit.
 ```
 
 ### Merge stylesheets (optional)
