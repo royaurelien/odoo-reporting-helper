@@ -1,27 +1,23 @@
-import logging
 import pathlib
 
 import click
 
-from orh.core.converter import Converter
-from orh.core.tools import download_file
-from orh.core.html import *
-
-# from orh.core.tools import (
-#     add_style,
-#     compile_stylesheets,
-#     fix_stylesheets,
-#     fix_stylesheets_url,
-#     get_base_url,
-#     get_js_scripts,
-#     get_stylesheets,
-#     get_tree,
-#     remove_div,
-#     remove_empty_lines,
-#     remove_html_attrs,
-#     tree_to_string,
-# )
-
+from orh.core.html import (
+    add_style,
+    compile_stylesheets,
+    fix_stylesheets,
+    fix_stylesheets_url,
+    get_base_url,
+    get_js_scripts,
+    get_stylesheets,
+    get_tree,
+    remove_div,
+    remove_empty_lines,
+    remove_html_attrs,
+    stylesheet_to_url,
+    tree_to_string,
+)
+from orh.core.tools import download_file, set_memory_limit
 
 WORKDIR = pathlib.Path().absolute()
 
@@ -45,14 +41,33 @@ WORKDIR = pathlib.Path().absolute()
     type=bool,
     help="Keep JS scripts.",
 )
+@click.option(
+    "--cookies",
+    "-c",
+    is_flag=False,
+    type=str,
+    help="Cookies",
+)
+@click.option(
+    "--limit-memory",
+    "-l",
+    is_flag=True,
+    default=False,
+    type=bool,
+    help="Set memory limit.",
+)
 def clean(source, destination, **kwargs):
     """Clean and prepare html sources."""
 
-    # limit_memory(4294967296)
     remove_stylesheets = kwargs.get("include_stylesheets", False)
     remove_js = not kwargs.get("include_javascripts", False)
-    # download_stylesheets = False
+    download_stylesheets = False
     local_stylesheets = True
+    cookies = not kwargs.get("cookies", False)
+    limit_memory = not kwargs.get("limit_memory", False)
+
+    if limit_memory:
+        set_memory_limit()
 
     with open(source, encoding="utf-8") as r, open(
         destination, "w", encoding="utf-8"
@@ -65,30 +80,28 @@ def clean(source, destination, **kwargs):
         tree = get_tree(file.read())
 
     base_url, tree = get_base_url(tree)
-    print("base url: %s", base_url)
+
     _, tree = get_js_scripts(tree, remove_js)
     stylesheets, tree = get_stylesheets(tree, remove_stylesheets)
     to_fix = None
 
     if stylesheets:
-        print(stylesheets)
         new_stylesheets = []
 
         if local_stylesheets:
             new_stylesheets = fix_stylesheets(stylesheets, WORKDIR)
             to_fix = zip(stylesheets, new_stylesheets)
 
-        # if download_stylesheets:
-        #     for url, filename in [
-        #         stylesheet_to_url(base_url, file) for file in stylesheets
-        #     ]:
-        #         filepath = download_file(url, filename, WORKDIR)
-        #         new_stylesheets.append(filepath)
+        if download_stylesheets:
+            for url, filename in [
+                stylesheet_to_url(base_url, file) for file in stylesheets
+            ]:
+                options = {"cookies": cookies} if cookies else {}
+                filepath = download_file(url, filename, WORKDIR, **options)
+                new_stylesheets.append(filepath)
 
         if new_stylesheets:
             stylesheets = new_stylesheets
-
-        print(stylesheets)
 
         if remove_stylesheets:
             content = compile_stylesheets(stylesheets, base_url, WORKDIR)

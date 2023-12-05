@@ -4,8 +4,6 @@ import pathlib
 import click
 
 from orh.core.converter import Converter
-from orh.core.tools import download_file
-from orh.core.html import *
 
 _logger = logging.getLogger(__name__)
 _logger.addHandler(logging.FileHandler("./orh.log"))

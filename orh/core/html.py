@@ -3,6 +3,7 @@ import re
 
 from lxml import etree
 
+from orh.core.tools import download_file
 
 DEFAULT_ATTRIBUTES_TO_CLEAN = [
     # "class",
@@ -29,6 +30,7 @@ __all__ = [
     "tree_to_string",
     "remove_empty_lines",
     "remove_div",
+    "stylesheet_to_url",
 ]
 
 
@@ -88,11 +90,11 @@ def get_js_scripts(tree, remove=False):
     return extract_tag(tree, "script", "src", remove=remove)
 
 
-# def stylesheet_to_url(url, filepath):
-#     filename = os.path.basename(filepath)
-#     url = f"{url}{filepath}"
+def stylesheet_to_url(url, filepath):
+    filename = os.path.basename(filepath)
+    url = f"{url}{filepath}"
 
-#     return url, filename
+    return url, filename
 
 
 def fix_url(text, url):
@@ -144,6 +146,16 @@ def fix_stylesheets_url(files, url, path=None):
             f.write(content)
 
 
+def fix_stylesheet_url(filename, url, path=None):
+    """Update relative URL in CSS file"""
+    filepath = os.path.join(path, filename) if path else filename
+
+    with open(filepath, encoding="utf-8") as f:
+        content = fix_url(f.read(), url)
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(content)
+
+
 def add_style(tree, content):
     """Helper: add style tag with content."""
 
@@ -188,3 +200,36 @@ def remove_empty_lines(text):
 def remove_div(text):
     """Helper: remove dirty DIV."""
     return re.sub(r"\<div\/\>", "", text).strip("\n")
+
+
+def clean_html(raw, path=None, **kwargs):
+    session_id = kwargs.get("session_id")
+    options = {}
+    files = []
+
+    if not path:
+        path = "/tmp"
+
+    if session_id:
+        options["session_id"] = session_id
+
+    tree = get_tree(raw)
+    base_url, tree = get_base_url(tree)
+    stylesheets, tree = get_stylesheets(tree, False)
+    new_stylesheets = []
+
+    # TODO: stylesheets
+    for url, filename in [stylesheet_to_url(base_url, file) for file in stylesheets]:
+        filepath = download_file(url, filename, path, **options)
+        new_stylesheets.append(filename)
+        files.append([filename, filepath])
+        fix_stylesheet_url(filepath, base_url)
+
+    tree = remove_html_attrs(tree)
+    html = tree_to_string(tree)
+
+    for old_file, new_file in zip(stylesheets, new_stylesheets):
+        html = html.replace(old_file, new_file)
+    html = remove_empty_lines(remove_div(html))
+
+    return html, files

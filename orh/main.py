@@ -1,6 +1,7 @@
 import logging
-import pathlib
 import os
+import pathlib
+
 import click
 
 from orh.cli.clean import clean
