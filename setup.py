@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="odoo-reporting-helper",
-    version="0.0.1",
+    version="0.0.2",
     description="Odoo Reporting Helper",
     url="https://github.com/royaurelien/odoo-reporting-helper",
     author="Aurelien ROY",
@@ -18,7 +18,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "orh = orh.cli.main:cli",
+            "orh = orh.main:cli",
         ],
     },
 )
